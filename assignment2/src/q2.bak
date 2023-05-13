@@ -1,0 +1,23 @@
+(define take
+   (lambda(lst pos)
+      (if (< (length lst) pos)
+          lst
+          (if (< pos 1)
+              '()
+              (cons (car lst) (take (cdr lst) (- pos 1)))))))
+
+(define take-map (lambda(lst func pos)
+  (if (or (eq? lst '()) (< pos 1))
+      '() 
+      (cons (func (car lst)) (take-map (cdr lst) func (- pos 1)))
+      )
+      ))
+
+(define take-filter (lambda(lst pred pos)
+  (if (or (eq? lst '()) (< pos 1))
+      '()
+      (if(pred car lst))
+      (cons (car lst) (take-filter (cdr lst) pred (- pos 1)))
+      (take-filter (cdr lst) pred pos)
+  )))
+

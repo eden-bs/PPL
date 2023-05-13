@@ -1,0 +1,174 @@
+(define take
+  (lambda (lst pos)
+    (if (< (length lst) pos)
+        lst
+        (if (< pos 1)
+            '()
+            (cons (car lst) (take (cdr lst) (- pos 1)))
+            )
+        )
+    )
+  )
+
+(define take-map
+  (lambda (lst func pos)
+    (if (or (empty? lst) (< pos 1))
+        '()
+        (cons (func (car lst)) (take-map (cdr lst) func (- pos 1)))
+        )
+    )
+  )
+
+(define take-filter
+  (lambda (lst pred pos)
+    (if (or (empty? lst) (< pos 1))
+        '()
+        (if (pred (car lst))
+            (cons (car lst) (take-filter (cdr lst) pred (- pos 1)))
+            (take-filter (cdr lst) pred pos)
+            )
+        )
+    )
+  )
+
+(define sub-size
+  (lambda (lst size)
+    (if (= (length lst) size)
+        (cons (take lst size) '())
+        (cons (take lst size) (sub-size (cdr lst) size))
+    )
+  )
+)
+
+(define sub-size-map
+  (lambda (lst func size)
+    (if (= (length lst) size)
+        (cons (take-map lst func size) '())
+        (cons (take-map lst func size) (sub-size-map (cdr lst) func size))
+    )
+  )
+)
+(define root
+  (lambda (lst)
+      (if (empty? lst)
+      '()
+      (car lst)
+      )
+  )
+)
+(define left
+  (lambda (lst)
+    (if (empty? lst)
+      '()
+      (if (empty? (cdr lst))
+      '()
+      (car (cdr lst))
+      )
+    )
+  )
+)
+
+  (define right
+  (lambda (lst)
+    (if (empty? lst)
+      '()
+      (if (empty? (cdr lst))
+        '()
+        (if (empty? (cdr (cdr lst)))
+          '()
+          (car (cdr (cdr lst)))
+        )
+      )
+    )
+  )
+)
+
+(define count-node
+    (lambda (lst val)
+        (if (pair? lst)
+             (if (empty? lst)
+                     0
+                     (if (eq? (root lst) val)
+                         (+ 1 (count-node (left lst) val) (count-node (right lst) val))
+                         (+ (count-node (left lst) val) (count-node (right lst) val))
+                     ))
+            (if (eq? lst val)
+                1
+                0)
+         )
+    )
+)
+
+(define mirror-tree
+  (lambda (lst)
+    (if (eq? lst '())
+        '()
+        (if (pair? lst)
+        (cons (root lst) (cons (mirror-tree (right lst)) (cons (mirror-tree (left lst)) '())))
+        lst
+        )
+    )
+  )
+ )
+
+(define make-ok
+  (lambda (value)
+    (cons 'ok value)
+  )
+ )
+ 
+(define make-error
+  (lambda (message)
+    (cons 'error message)
+  )
+ )
+
+(define ok?
+  (lambda (result)
+    (if (pair? result)
+        (eq? (car result) 'ok)
+        #f
+    )
+  )
+ )
+
+(define error?
+  (lambda (result)
+    (if (pair? result)
+            (eq? (car result) 'error)
+            #f
+        )
+  )
+ )
+
+(define result?
+  (lambda (result)
+    (if (pair? result)
+        (or (eq? (car result) 'ok) (eq? (car result) 'error))
+        #f
+    )
+  )
+ )
+
+(define result->val
+  (lambda (result)
+    (if (result? result)
+        (cdr result)
+        (make-error "Error: not a result")
+    )
+  )
+)
+
+(define bind 
+  (lambda (func)
+    (lambda (result)
+      (if (ok? result)
+          (func (result->val result))
+          (if (error? result)
+              result
+              (make-error "some error message")
+          )
+      )
+    )
+  )
+)
